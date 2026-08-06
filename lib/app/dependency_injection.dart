@@ -11,6 +11,7 @@ import '../core/ai/memory/repositories/in_memory_memory_repository.dart';
 import '../core/ai/memory/memory_engine.dart';
 import '../core/services/logger.dart';
 import '../core/services/config.dart';
+import '../core/services/chat_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -26,6 +27,10 @@ Future<void> setupDependencies() async {
   getIt.registerSingleton<ConversationManager>(ConversationManager(
     store: getIt<ConversationStore>(),
     logger: getIt<Logger>(),
+  ));
+  getIt.registerSingleton<ChatService>(ChatService(
+    convManager: getIt<ConversationManager>(),
+    memoryEngine: getIt<MemoryEngine>(),
   ));
   getIt.registerSingleton<AiRuntime>(AiRuntime());
   getIt.registerSingleton<AiCoreKernel>(AiCoreKernel(
