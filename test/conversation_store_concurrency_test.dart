@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ai_app/core/conversation/conversation.dart';
-import 'package:ai_app/core/conversation/in_memory_conversation_store.dart';
-import 'package:ai_app/core/conversation/conversation_manager.dart';
-import 'package:ai_app/core/services/logger.dart';
+import 'package:my_app/core/conversation/conversation.dart';
+import 'package:my_app/core/conversation/in_memory_conversation_store.dart';
+import 'package:my_app/core/conversation/conversation_manager.dart';
+import 'package:my_app/core/services/logger.dart';
 
 void main() {
   late InMemoryConversationStore store;
