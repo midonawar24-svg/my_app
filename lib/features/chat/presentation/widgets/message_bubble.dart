@@ -1,2 +1,21 @@
 import 'package:flutter/material.dart';
-class MessageBubble extends StatelessWidget { final String text; final bool isUser; const MessageBubble({super.key, required this.text, required this.isUser}); @override Widget build(BuildContext context) { return Align(alignment: isUser ? Alignment.centerRight : Alignment.centerLeft, child: Container(margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12), padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: isUser ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surfaceVariant, borderRadius: BorderRadius.circular(16)), child: Text(text))); } }
+class MessageBubble extends StatelessWidget {
+  final String text;
+  final bool isUser;
+  const MessageBubble({super.key, required this.text, required this.isUser});
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: isUser? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isUser? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.secondaryContainer,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(text),
+      ),
+    );
+  }
+}

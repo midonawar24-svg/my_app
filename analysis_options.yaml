@@ -2,8 +2,11 @@ include: package:lints/recommended.yaml
 linter:
   rules:
     - avoid_print: false
+    - prefer_interpolation_to_compose_strings: false
 analyzer:
   errors:
     annotate_overrides: ignore
     avoid_renaming_method_parameters: ignore
     invalid_annotation_target: ignore
+    deprecated_member_use: ignore
+    prefer_interpolation_to_compose_strings: ignore
