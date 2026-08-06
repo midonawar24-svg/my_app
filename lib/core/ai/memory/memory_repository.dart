@@ -1,0 +1,2 @@
+import 'memory.dart';
+abstract class MemoryRepository { Future<Memory> save(Memory m); Future<Memory?> getById(String id); Future<List<Memory>> getAll(); Future<List<Memory>> search(String query); Future<List<Memory>> getByConversation(String conversationId); Future<List<Memory>> searchInConversation(String conversationId, String query); Future<void> delete(String id); Future<void> deleteConversation(String conversationId); Future<void> clear(); Future<int> count(); }

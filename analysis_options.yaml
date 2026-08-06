@@ -1,0 +1,9 @@
+include: package:lints/recommended.yaml
+linter:
+  rules:
+    - avoid_print: false
+analyzer:
+  errors:
+    annotate_overrides: ignore
+    avoid_renaming_method_parameters: ignore
+    invalid_annotation_target: ignore

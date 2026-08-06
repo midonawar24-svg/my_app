@@ -1,0 +1,5 @@
+import '../memory.dart';
+import '../memory_repository.dart';
+import '../../../storage/memory_store.dart';
+import 'in_memory_memory_repository.dart';
+class IsarMemoryRepository implements MemoryRepository { final InMemoryMemoryRepository _impl; IsarMemoryRepository(MemoryStore store) : _impl = InMemoryMemoryRepository(store); @override Future<Memory> save(Memory m) => _impl.save(m); @override Future<Memory?> getById(String id) => _impl.getById(id); @override Future<List<Memory>> getAll() => _impl.getAll(); @override Future<List<Memory>> search(String q) => _impl.search(q); @override Future<List<Memory>> getByConversation(String cid) => _impl.getByConversation(cid); @override Future<List<Memory>> searchInConversation(String cid, String q) => _impl.searchInConversation(cid, q); @override Future<void> delete(String id) => _impl.delete(id); @override Future<void> deleteConversation(String cid) => _impl.deleteConversation(cid); @override Future<void> clear() => _impl.clear(); @override Future<int> count() => _impl.count(); }

@@ -1,0 +1,17 @@
+name: my_app
+description: AI Core OS - Stable Foundation v1.5.0
+publish_to: 'none'
+version: 1.5.0+15
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  uuid: ^4.4.0
+  get_it: ^7.6.4
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+flutter:
+  uses-material-design: true

@@ -1,0 +1,7 @@
+import '../ai/memory/memory_engine.dart';
+import '../conversation/conversation_manager.dart';
+import '../services/logger.dart';
+import 'ai_runtime.dart';
+import 'kernel_events.dart';
+import 'lifecycle.dart';
+class AiCoreKernel { final MemoryEngine memoryEngine; final ConversationManager conversationManager; final AiRuntime runtime; final Logger logger; AiCoreKernel({required this.memoryEngine, required this.conversationManager, required this.runtime, required this.logger}); Future<void> initialize() async { logger.info('AI Core Kernel initializing...'); await runtime.start(); await memoryEngine.initialize(); await conversationManager.initialize(); logger.info('AI Core Kernel ready'); } Future<String> process(String input, {String? conversationId}) async { return await runtime.run(() async { runtime.emitEvent(KernelEventType.messageReceived, {'input': input}); final cid = conversationId ?? conversationManager.currentConversationId.value; if (cid == null) { final conv = await conversationManager.createNew(firstMessage: input); await memoryEngine.remember(content: input, conversationId: conv.id); runtime.emitEvent(KernelEventType.conversationCreated, {'id': conv.id}); return 'تم انشاء محادثة جديدة'; } else { await memoryEngine.remember(content: input, conversationId: cid); await conversationManager.touchConversation(cid); runtime.emitEvent(KernelEventType.memoryStored, {'conversationId': cid}); return 'تم الحفظ في الذاكرة'; } }); } KernelLifecycle get lifecycle => runtime.lifecycle.value; }
