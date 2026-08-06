@@ -1,1 +1,37 @@
-class Conversation { final String id; String title; final DateTime createdAt; DateTime lastMessageAt; int messageCount; bool pinned; Conversation({required this.id, required this.title, DateTime? createdAt, DateTime? lastMessageAt, this.messageCount = 0, this.pinned = false}) : createdAt = createdAt ?? DateTime.now(), lastMessageAt = lastMessageAt ?? DateTime.now(); Conversation copyWith({String? title, DateTime? lastMessageAt, int? messageCount, bool? pinned}) { return Conversation(id: id, title: title ?? this.title, createdAt: createdAt, lastMessageAt: lastMessageAt ?? this.lastMessageAt, messageCount: messageCount ?? this.messageCount, pinned: pinned ?? this.pinned); } }
+import 'package:flutter/foundation.dart';
+
+@immutable
+class Conversation {
+  final String id;
+  final String title;
+  final int messageCount;
+  final DateTime createdAt;
+  final DateTime lastMessageAt;
+  final bool pinned;
+
+  Conversation({
+    required this.id,
+    required this.title,
+    this.messageCount = 0,
+    DateTime? createdAt,
+    DateTime? lastMessageAt,
+    this.pinned = false,
+  })  : createdAt = createdAt ?? DateTime.now(),
+        lastMessageAt = lastMessageAt ?? DateTime.now();
+
+  Conversation copyWith({
+    String? title,
+    int? messageCount,
+    DateTime? lastMessageAt,
+    bool? pinned,
+  }) {
+    return Conversation(
+      id: id,
+      title: title ?? this.title,
+      messageCount: messageCount ?? this.messageCount,
+      createdAt: createdAt,
+      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+      pinned: pinned ?? this.pinned,
+    );
+  }
+}
