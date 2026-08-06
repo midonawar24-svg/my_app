@@ -19,7 +19,6 @@ class MemoryEngine {
     final id = _uuid.v4();
     final m = Memory(id: id, content: content, conversationId: conversationId, metadata: metadata);
     final r = await _repo.save(m);
-  debugPrint("SAVED: $conversationId");
     lastUpdatedConversationId.value = conversationId;
     await _refresh();
     return r;

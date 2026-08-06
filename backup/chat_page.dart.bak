@@ -26,9 +26,7 @@ class _ChatPageState extends State<ChatPage> {
     final currentId = _m.currentConversationId.value;
     if (updatedId!= null && updatedId == currentId) { _load(); }
   }
-  Future<void> _load() async { final id = _m.currentConversationId.value;
-  debugPrint("LOAD START: conversation=$id"); if (id == null) { if (mounted) setState(() => _msgs = []); return; } final ms = await _mem.getByConversation(id);
-  debugPrint("LOAD END: conversation=$id, messages=${ms.length}"); if (mounted) setState(() => _msgs = ms); }
+  Future<void> _load() async { final id = _m.currentConversationId.value; if (id == null) { if (mounted) setState(() => _msgs = []); return; } final ms = await _mem.getByConversation(id); if (mounted) setState(() => _msgs = ms); }
   Future<void> _send() async {
     final t = _ctrl.text.trim(); if (t.isEmpty) return; _ctrl.clear();
     try { final currentId = _m.currentConversationId.value; if (currentId == null) { await _chat.sendFirstMessage(t); } else { await _chat.sendMessage(currentId, t); } } catch (e) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('فشل: $e'))); }

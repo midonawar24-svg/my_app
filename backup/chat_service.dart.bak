@@ -1,17 +1,3 @@
-
-Future<void> sendMessage(String conversationId, String text) async {
-  debugPrint("SEND START: $text");
-  await _mem.remember(content: text, conversationId: conversationId);
-  debugPrint("REMEMBER DONE: $conversationId");
-  try {
-    await _conv.touchConversation(conversationId);
-    debugPrint("TOUCH DONE: $conversationId");
-  } catch (e) {
-    debugPrint("TOUCH SKIP: $e");
-  }
-}
-
-
 import '../conversation/conversation.dart';
 import '../conversation/conversation_manager.dart';
 import '../ai/memory/memory_engine.dart';
@@ -34,7 +20,7 @@ class ChatService {
       rethrow;
     }
   }
-  Future<void> sendMessage_OLD_DISABLED(String conversationId, String text) async {
+  Future<void> sendMessage(String conversationId, String text) async {
     Memory? saved;
     try {
       saved = await _mem.remember(content: text, conversationId: conversationId);
