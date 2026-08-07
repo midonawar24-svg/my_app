@@ -1,14 +1,13 @@
 class ChatRequest {
   final String message;
-  final String conversationId;
-
-  const ChatRequest({
-    required this.message,
-    required this.conversationId,
-  });
-
-  Map<String, dynamic> toJson() => {
-        'message': message,
-        'conversation_id': conversationId,
-      };
+  final String? conversationId;
+  ChatRequest({required this.message, this.conversationId});
+  
+  Map<String, dynamic> toJson() {
+    return {
+      'message': message,
+      if (conversationId != null) 'conversation_id': conversationId, // الأساس لـ FastAPI
+      if (conversationId != null) 'conversationId': conversationId, // توافق مع backends أخرى
+    };
+  }
 }

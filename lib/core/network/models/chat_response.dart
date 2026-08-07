@@ -1,36 +1,21 @@
 class ChatResponse {
   final String reply;
-  final String conversationId;
-  final String? provider;
-  final Map<String, dynamic>? extra;
-
-  const ChatResponse({
-    required this.reply,
-    required this.conversationId,
-    this.provider,
-    this.extra,
-  });
-
+  final String? conversationId;
+  ChatResponse({required this.reply, this.conversationId});
+  
   factory ChatResponse.fromJson(Map<String, dynamic> json) {
-    final extra = Map<String, dynamic>.from(json)
-      ..removeWhere(
-        (k, _) => {
-          'reply',
-          'response',
-          'conversation_id',
-          'conversationId',
-          'provider',
-        }.contains(k),
-      );
-
+    final dynamic raw = json['reply'] ?? json['message'] ?? json['response'] ?? json['text'] ?? json['data'] ?? '';
+    String text;
+    if (raw is String) {
+      text = raw;
+    } else if (raw is Map && raw['content'] != null) {
+      text = raw['content'].toString();
+    } else {
+      text = raw.toString();
+    }
     return ChatResponse(
-      reply: json['reply'] as String? ?? json['response'] as String? ?? '',
-      conversationId:
-          json['conversation_id'] as String? ??
-          json['conversationId'] as String? ??
-          '',
-      provider: json['provider'] as String?,
-      extra: extra.isEmpty ? null : extra,
+      reply: text,
+      conversationId: json['conversation_id'] as String? ?? json['conversationId'] as String? ?? json['id'] as String?,
     );
   }
 }
