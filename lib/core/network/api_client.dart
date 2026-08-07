@@ -7,11 +7,16 @@ import 'api_exception.dart';
 
 class ApiClient {
   final http.Client _client;
+  final ApiConfig _config;
   final String baseUrl;
 
-  ApiClient({http.Client? client, String? baseUrl})
-      : _client = client ?? http.Client(),
-        baseUrl = baseUrl ?? ApiConfig.fullBaseUrl;
+  ApiClient({
+    http.Client? client,
+    ApiConfig? config,
+    String? baseUrl,
+  })  : _client = client ?? http.Client(),
+        _config = config ?? ApiConfig(),
+        baseUrl = baseUrl ?? (config ?? ApiConfig()).baseUrl;
 
   Future<T> post<T>(
     String path, {
@@ -26,7 +31,7 @@ class ApiClient {
             headers: {'Content-Type': 'application/json'},
             body: data != null ? jsonEncode(data) : null,
           )
-          .timeout(ApiConfig.receiveTimeout);
+          .timeout(_config.receiveTimeout);
       return _handleResponse(response, parser);
     } on SocketException {
       throw const NetworkException('No internet connection');
@@ -43,7 +48,7 @@ class ApiClient {
     try {
       final response = await _client
           .get(uri, headers: {'Content-Type': 'application/json'})
-          .timeout(ApiConfig.receiveTimeout);
+          .timeout(_config.receiveTimeout);
       return _handleResponse(response, parser);
     } on SocketException {
       throw const NetworkException('No internet connection');
@@ -65,7 +70,7 @@ class ApiClient {
             headers: {'Content-Type': 'application/json'},
             body: data != null ? jsonEncode(data) : null,
           )
-          .timeout(ApiConfig.receiveTimeout);
+          .timeout(_config.receiveTimeout);
       return _handleResponse(response, parser);
     } on SocketException {
       throw const NetworkException('No internet connection');
@@ -74,9 +79,13 @@ class ApiClient {
     }
   }
 
-  T _handleResponse<T>(http.Response response, T Function(dynamic) parser) {
+  T _handleResponse<T>(
+    http.Response response,
+    T Function(dynamic) parser,
+  ) {
     final status = response.statusCode;
     dynamic body;
+
     try {
       body = response.body.isNotEmpty ? jsonDecode(response.body) : null;
     } catch (_) {
@@ -85,17 +94,18 @@ class ApiClient {
 
     if (status >= 200 && status < 300) {
       return parser(body);
-    } else {
-      throw ServerException(
-        body is Map
-            ? (body['detail'] ?? body['message'] ?? 'Server error').toString()
-            : 'Server error: $status',
-        statusCode: status,
-        data: body,
-      );
     }
+
+    throw ServerException(
+      body is Map
+          ? (body['detail'] ?? body['message'] ?? 'Server error').toString()
+          : 'Server error: $status',
+      statusCode: status,
+      data: body,
+    );
   }
 
   void close() => _client.close();
+
   void dispose() => close();
 }
