@@ -29,7 +29,7 @@ Future<void> setupDependencies() async {
   if (!getIt.isRegistered<ApiConfig>()) getIt.registerSingleton<ApiConfig>(ApiConfig());
   if (!getIt.isRegistered<ApiClient>()) getIt.registerSingleton<ApiClient>(ApiClient(config: getIt<ApiConfig>()));
   if (!getIt.isRegistered<ChatApiService>()) getIt.registerSingleton<ChatApiService>(ChatApiService(getIt<ApiClient>()));
-  if (!getIt.isRegistered<ChatService>()) getIt.registerSingleton<ChatService>(ChatService(convManager: getIt<ConversationManager>(), memoryEngine: getIt<MemoryEngine>()));
+  if (!getIt.isRegistered<ChatService>()) getIt.registerSingleton<ChatService>(ChatService(convManager: getIt<ConversationManager>(), memoryEngine: getIt<MemoryEngine>(), apiService: getIt<ChatApiService>()));
   if (!getIt.isRegistered<AiRuntime>()) getIt.registerSingleton<AiRuntime>(AiRuntime());
   if (!getIt.isRegistered<AiCoreKernel>()) getIt.registerSingleton<AiCoreKernel>(AiCoreKernel(memoryEngine: getIt<MemoryEngine>(), conversationManager: getIt<ConversationManager>(), runtime: getIt<AiRuntime>(), logger: getIt<Logger>()));
 }
