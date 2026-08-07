@@ -43,9 +43,12 @@ class HiveMemoryStore implements MemoryStore {
     final lower = q.toLowerCase();
     return all.where((e) => e.content.toLowerCase().contains(lower)).toList();
   }
-  @override Future<List<Memory>> getByConversation(String cid) async {
+  @override
+  Future<List<Memory>> getByConversation(String cid) async {
     final all = await getAll();
-    return all.where((e) => e.conversationId == cid).toList();
+    final list = all.where((e) => e.conversationId == cid).toList();
+    list.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    return list;
   }
   @override Future<void> delete(String id) async => await _box.delete(id);
   @override Future<void> deleteConversation(String cid) async {
