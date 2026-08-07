@@ -12,6 +12,9 @@ import '../core/ai/memory/memory_engine.dart';
 import '../core/services/logger.dart';
 import '../core/services/config.dart';
 import '../core/services/chat_service.dart';
+import '../core/network/api_config.dart';
+import '../core/network/api_client.dart';
+import '../core/services/chat_api_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -23,6 +26,9 @@ Future<void> setupDependencies() async {
   if (!getIt.isRegistered<MemoryRepository>()) getIt.registerSingleton<MemoryRepository>(InMemoryMemoryRepository(getIt<MemoryStore>()));
   if (!getIt.isRegistered<MemoryEngine>()) getIt.registerSingleton<MemoryEngine>(MemoryEngine(repository: getIt<MemoryRepository>()));
   if (!getIt.isRegistered<ConversationManager>()) getIt.registerSingleton<ConversationManager>(ConversationManager(store: getIt<ConversationStore>(), logger: getIt<Logger>()));
+  if (!getIt.isRegistered<ApiConfig>()) getIt.registerSingleton<ApiConfig>(ApiConfig());
+  if (!getIt.isRegistered<ApiClient>()) getIt.registerSingleton<ApiClient>(ApiClient(config: getIt<ApiConfig>()));
+  if (!getIt.isRegistered<ChatApiService>()) getIt.registerSingleton<ChatApiService>(ChatApiService(getIt<ApiClient>()));
   if (!getIt.isRegistered<ChatService>()) getIt.registerSingleton<ChatService>(ChatService(convManager: getIt<ConversationManager>(), memoryEngine: getIt<MemoryEngine>()));
   if (!getIt.isRegistered<AiRuntime>()) getIt.registerSingleton<AiRuntime>(AiRuntime());
   if (!getIt.isRegistered<AiCoreKernel>()) getIt.registerSingleton<AiCoreKernel>(AiCoreKernel(memoryEngine: getIt<MemoryEngine>(), conversationManager: getIt<ConversationManager>(), runtime: getIt<AiRuntime>(), logger: getIt<Logger>()));
