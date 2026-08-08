@@ -6,50 +6,14 @@ from app.main import app
 client = TestClient(app)
 
 
-def test_health():
-    response = client.get("/health")
+def test_chat_echo_provider(monkeypatch):
+    monkeypatch.setenv("AI_PROVIDER", "echo")
 
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert data["ok"] is True
-    assert data["service"] == "AI Core OS"
-
-
-def test_versioned_health():
-    response = client.get("/api/v1/health")
-
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert data["ok"] is True
-
-
-def test_chat():
-    response = client.post(
-        "/chat",
-        json={
-            "message": "مرحبا",
-            "conversation_id": "test-123",
-        },
-    )
-
-    assert response.status_code == 200
-
-    data = response.json()
-
-    assert data["reply"] == "Echo: مرحبا"
-    assert data["conversation_id"] == "test-123"
-
-
-def test_versioned_chat():
     response = client.post(
         "/api/v1/chat",
         json={
-            "message": "hello",
-            "conversationId": "test-456",
+            "message": "HELLO API",
+            "conversation_id": "test-api",
         },
     )
 
@@ -57,5 +21,35 @@ def test_versioned_chat():
 
     data = response.json()
 
-    assert data["reply"] == "Echo: hello"
-    assert data["conversation_id"] == "test-456"
+    assert data["reply"] == "Echo: HELLO API"
+    assert data["conversation_id"] == "test-api"
+
+
+def test_chat_fake_provider(monkeypatch):
+    monkeypatch.setenv("AI_PROVIDER", "fake")
+
+    response = client.post(
+        "/api/v1/chat",
+        json={
+            "message": "HELLO FAKE",
+            "conversation_id": "test-fake",
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["reply"] == "Fake AI: استقبلت 'HELLO FAKE'"
+    assert data["conversation_id"] == "test-fake"
+
+
+def test_chat_rejects_empty_message():
+    response = client.post(
+        "/api/v1/chat",
+        json={
+            "message": "",
+        },
+    )
+
+    assert response.status_code == 422

@@ -25,7 +25,7 @@ class ChatResponse(BaseModel):
 async def chat(request: ChatRequest):
     conversation_id = request.conversation_id or request.conversationId
 
-    service = AIService(provider_name="echo")
+    service = AIService()
 
     reply = await service.generate(
         message=request.message,
