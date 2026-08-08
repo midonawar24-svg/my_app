@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/network/internet_check.dart';
 
 import '../../../app/dependency_injection.dart';
 import '../../../core/conversation/conversation_manager.dart';
@@ -86,6 +87,18 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  Future<void> _testInternet() async {
+    final result = await InternetCheck.run();
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result)),
+    );
+
+    debugPrint(result);
+  }
+
   Future<void> _send() async {
     final text = _ctrl.text.trim();
 
@@ -104,6 +117,9 @@ class _ChatPageState extends State<ChatPage> {
           text,
         );
       }
+
+      // تأكيد تحميل آخر حالة بعد حفظ رد الـ AI
+      await _load();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -125,6 +141,11 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: const Text('AI Core OS'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.wifi),
+            tooltip: 'اختبار الإنترنت',
+            onPressed: _testInternet,
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () => _m.newChat(),

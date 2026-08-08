@@ -4,21 +4,55 @@ import '../conversation/conversation.dart';
 import '../conversation/conversation_manager.dart';
 import '../ai/memory/memory_engine.dart';
 import '../ai/memory/memory.dart';
-import 'chat_api_service.dart';
-import '../network/models/chat_request.dart';
+import '../ai/providers/ai_provider.dart';
 
 class ChatService {
   final ConversationManager _conv;
   final MemoryEngine _mem;
-  final ChatApiService? _api;
+  final AiProvider? _provider;
 
   ChatService({
     required ConversationManager convManager,
     required MemoryEngine memoryEngine,
-    ChatApiService? apiService,
+    AiProvider? provider,
   })  : _conv = convManager,
         _mem = memoryEngine,
-        _api = apiService;
+        _provider = provider;
+
+  String _fakeReply(String text) {
+    final value = text.trim();
+
+    if (value.isEmpty) {
+      return 'Fake AI: رسالة فارغة!';
+    }
+
+    return "Fake AI: استقبلت '$value'";
+  }
+
+  Future<String> _generateReply(
+    String text,
+    String conversationId,
+  ) async {
+    if (_provider != null) {
+      try {
+        final reply = await _provider.generateReply(
+          message: text,
+          conversationId: conversationId,
+        );
+
+        if (reply.trim().isNotEmpty) {
+          debugPrint("AI PROVIDER ASSISTANT: $reply");
+          return reply;
+        }
+      } catch (e) {
+        debugPrint("AI PROVIDER FAIL -> LOCAL FAKE FALLBACK: $e");
+      }
+    }
+
+    final fallback = _fakeReply(text);
+    debugPrint("LOCAL FAKE ASSISTANT: $fallback");
+    return fallback;
+  }
 
   Future<Conversation> sendFirstMessage(String text) async {
     Conversation? created;
@@ -37,28 +71,15 @@ class ChatService {
 
       debugPrint("USER SAVED: ${savedMemory.id}");
 
-      if (_api != null) {
-        try {
-          final res = await _api.sendMessage(
-            ChatRequest(
-              message: text,
-              conversationId: created.id,
-            ),
-          );
+      final reply = await _generateReply(text, created.id);
 
-          if (res.reply.isNotEmpty) {
-            await _mem.remember(
-              content: res.reply,
-              conversationId: created.id,
-              metadata: const {'role': 'assistant'},
-            );
+      await _mem.remember(
+        content: reply,
+        conversationId: created.id,
+        metadata: const {'role': 'assistant'},
+      );
 
-            debugPrint("ASSISTANT SAVED: ${res.reply}");
-          }
-        } catch (e) {
-          debugPrint("REMOTE FAIL kept offline: $e");
-        }
-      }
+      debugPrint("ASSISTANT SAVED: $reply");
 
       await _conv.touchConversation(created.id);
 
@@ -101,28 +122,15 @@ class ChatService {
 
       debugPrint("USER SAVED: ${saved.id}");
 
-      if (_api != null) {
-        try {
-          final res = await _api.sendMessage(
-            ChatRequest(
-              message: text,
-              conversationId: conversationId,
-            ),
-          );
+      final reply = await _generateReply(text, conversationId);
 
-          if (res.reply.isNotEmpty) {
-            await _mem.remember(
-              content: res.reply,
-              conversationId: conversationId,
-              metadata: const {'role': 'assistant'},
-            );
+      await _mem.remember(
+        content: reply,
+        conversationId: conversationId,
+        metadata: const {'role': 'assistant'},
+      );
 
-            debugPrint("ASSISTANT SAVED: ${res.reply}");
-          }
-        } catch (e) {
-          debugPrint("REMOTE FAIL kept offline: $e");
-        }
-      }
+      debugPrint("ASSISTANT SAVED: $reply");
 
       await _conv.touchConversation(conversationId);
 
