@@ -31,13 +31,21 @@ class ChatService {
 
   Future<String> _generateReply(
     String text,
-    String conversationId,
-  ) async {
+    String conversationId, {
+    bool shouldRemember = false,
+    double confidence = 0.0,
+    String memoryType = 'knowledge',
+    Map<String, dynamic>? context,
+  }) async {
     if (_provider != null) {
       try {
         final reply = await _provider.generateReply(
           message: text,
           conversationId: conversationId,
+          shouldRemember: shouldRemember,
+          confidence: confidence,
+          memoryType: memoryType,
+          context: context,
         );
 
         if (reply.trim().isNotEmpty) {
@@ -54,7 +62,13 @@ class ChatService {
     return fallback;
   }
 
-  Future<Conversation> sendFirstMessage(String text) async {
+  Future<Conversation> sendFirstMessage(
+    String text, {
+    bool shouldRemember = false,
+    double confidence = 0.0,
+    String memoryType = 'knowledge',
+    Map<String, dynamic>? context,
+  }) async {
     Conversation? created;
     Memory? savedMemory;
 
@@ -71,7 +85,14 @@ class ChatService {
 
       debugPrint("USER SAVED: ${savedMemory.id}");
 
-      final reply = await _generateReply(text, created.id);
+      final reply = await _generateReply(
+        text,
+        created.id,
+        shouldRemember: shouldRemember,
+        confidence: confidence,
+        memoryType: memoryType,
+        context: context,
+      );
 
       await _mem.remember(
         content: reply,
@@ -107,8 +128,12 @@ class ChatService {
 
   Future<void> sendMessage(
     String conversationId,
-    String text,
-  ) async {
+    String text, {
+    bool shouldRemember = false,
+    double confidence = 0.0,
+    String memoryType = 'knowledge',
+    Map<String, dynamic>? context,
+  }) async {
     debugPrint("SEND START: $text -> $conversationId");
 
     Memory? saved;
@@ -122,7 +147,14 @@ class ChatService {
 
       debugPrint("USER SAVED: ${saved.id}");
 
-      final reply = await _generateReply(text, conversationId);
+      final reply = await _generateReply(
+        text,
+        conversationId,
+        shouldRemember: shouldRemember,
+        confidence: confidence,
+        memoryType: memoryType,
+        context: context,
+      );
 
       await _mem.remember(
         content: reply,

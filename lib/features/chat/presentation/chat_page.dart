@@ -141,12 +141,24 @@ class _ChatPageState extends State<ChatPage> {
     try {
       final currentId = _m.currentConversationId.value;
 
+      const shouldRemember = false;
+      const confidence = 0.0;
+      const memoryType = 'knowledge';
+
       if (currentId == null) {
-        await _chat.sendFirstMessage(text);
+        await _chat.sendFirstMessage(
+          text,
+          shouldRemember: shouldRemember,
+          confidence: confidence,
+          memoryType: memoryType,
+        );
       } else {
         await _chat.sendMessage(
           currentId,
           text,
+          shouldRemember: shouldRemember,
+          confidence: confidence,
+          memoryType: memoryType,
         );
       }
 
