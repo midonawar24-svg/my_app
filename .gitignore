@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub-cache/
+build/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example

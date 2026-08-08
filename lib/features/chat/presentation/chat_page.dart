@@ -6,6 +6,7 @@ import '../../../core/conversation/conversation_manager.dart';
 import '../../../core/ai/memory/memory_engine.dart';
 import '../../../core/ai/memory/memory.dart';
 import '../../../core/services/chat_service.dart';
+import '../../../core/services/chat_api_service.dart';
 import 'widgets/chat_drawer.dart';
 import 'widgets/message_bubble.dart';
 import 'widgets/input_bar.dart';
@@ -99,6 +100,37 @@ class _ChatPageState extends State<ChatPage> {
     debugPrint(result);
   }
 
+  Future<void> _testBackend() async {
+    try {
+      final api = getIt<ChatApiService>();
+      final ok = await api.checkHealth();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ok ? 'BACKEND: CONNECTED' : 'BACKEND: NOT CONNECTED',
+          ),
+        ),
+      );
+
+      debugPrint(
+        ok ? 'BACKEND: CONNECTED' : 'BACKEND: NOT CONNECTED',
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('BACKEND: NOT CONNECTED — $e'),
+        ),
+      );
+
+      debugPrint('BACKEND: NOT CONNECTED — $e');
+    }
+  }
+
   Future<void> _send() async {
     final text = _ctrl.text.trim();
 
@@ -145,6 +177,11 @@ class _ChatPageState extends State<ChatPage> {
             icon: const Icon(Icons.wifi),
             tooltip: 'اختبار الإنترنت',
             onPressed: _testInternet,
+          ),
+          IconButton(
+            icon: const Icon(Icons.cloud_done),
+            tooltip: 'اختبار Backend',
+            onPressed: _testBackend,
           ),
           IconButton(
             icon: const Icon(Icons.add),

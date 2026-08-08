@@ -1,0 +1,42 @@
+b7c5ae5 | 2026-08-06 04:17:53 +0300 | v1.5.0
+bbc7352 | 2026-08-06 04:27:03 +0300 | fix: add workflow for APK build
+f46d66d | 2026-08-06 04:30:53 +0300 | fix: analyze - 0 issues - build APK ready
+082353a | 2026-08-06 05:49:56 +0300 | fix: RC3 Production-Ready - Atomic ChatService + Single Source of Truth + Optimized Notifiers
+87f2394 | 2026-08-06 06:25:20 +0300 | feat: Problem 1 - Concurrency & Transaction Architecture - Production Ready
+70a7c8a | 2026-08-06 07:01:53 +0300 | Refactor setupDependencies for improved readability
+d0373bb | 2026-08-06 07:13:35 +0300 | Update import paths for conversation store tests
+4299352 | 2026-08-06 07:20:18 +0300 | Remove unused import from concurrency test
+2b04334 | 2026-08-06 08:34:58 +0300 | fix: register ChatService in DI and init GetIt in widget_test
+1ab4b0e | 2026-08-06 09:02:58 +0300 | fix: remove unused material import to pass analyze
+792a0d9 | 2026-08-06 10:56:49 +0300 | feat: init Hive in bootstrap
+b6e1ea7 | 2026-08-06 10:58:25 +0300 | feat: switch DI to Hive stores - idempotent
+a9751e6 | 2026-08-06 11:18:00 +0300 | fix: add missing Hive stores and dependencies
+60eae91 | 2026-08-06 19:18:24 +0300 | my_app: push from termux
+6c004b5 | 2026-08-06 20:00:08 +0300 | fix: refresh chat after second message - force notify on same conversationId
+b3dfff4 | 2026-08-06 20:16:48 +0300 | ci: auto build apk on push
+8e3be1f | 2026-08-06 20:38:00 +0300 | keep build only
+4633d3c | 2026-08-06 20:49:09 +0300 | keep best build workflow
+4ab97b9 | 2026-08-06 21:31:07 +0300 | fast build without tests
+0243f98 | 2026-08-06 21:36:10 +0300 | trigger new fast build
+3fa6860 | 2026-08-06 21:42:11 +0300 | fix: use ubuntu-22.04 stable runner
+3c097d9 | 2026-08-07 07:38:17 +0300 | fix: let CI regenerate android
+255ce50 | 2026-08-07 08:30:05 +0300 | fix: sort messages by createdAt in getByConversation
+b07c17a | 2026-08-07 10:01:36 +0300 | feat(server): add FastAPI and /health endpoint
+97e7e75 | 2026-08-07 10:59:57 +0300 | feat(server): add AIProvider interface
+eed297d | 2026-08-07 11:01:31 +0300 | feat(server): add EchoProvider
+bea4cbc | 2026-08-07 11:11:57 +0300 | test(server): add isolated test for EchoProvider
+82918a0 | 2026-08-07 11:21:48 +0300 | feat(server): add ProviderFactory
+8d3f0c2 | 2026-08-07 11:29:27 +0300 | test(server): add factory type tests
+0a06a91 | 2026-08-07 11:35:24 +0300 | feat(server): add AIService using ProviderFactory
+16bcf05 | 2026-08-07 11:40:45 +0300 | feat(server): add FakeProvider
+5e01e55 | 2026-08-07 12:02:13 +0300 | feat(server): register FakeProvider in Factory
+3577f48 | 2026-08-07 12:02:17 +0300 | feat: close server-scaffold
+f3bc2d1 | 2026-08-07 12:50:28 +0300 | feat(network): add generic ApiClient - final
+e5288c5 | 2026-08-07 14:02:16 +0300 | feat(network): add ChatApiService without breaking local ChatService
+6f070c9 | 2026-08-07 15:04:33 +0300 | fix(network): use port 8000 for FastAPI, support conversation_id primary + conversationId compat
+8d7103f | 2026-08-08 00:20:44 +0300 | feat(di): register ApiConfig, ApiClient and ChatApiService
+29b7549 | 2026-08-08 01:26:55 +0300 | feat(chat): integrate ChatApiService with local fallback
+472f0eb | 2026-08-08 01:41:52 +0300 | fix(network): align ApiClient with ApiConfig
+9c86ff2 | 2026-08-08 02:13:07 +0300 | feat(backend): add chat API and automated tests
+61f12b4 | 2026-08-08 02:39:53 +0300 | feat(chat): persist assistant replies in conversation
+8bf3767 | 2026-08-08 08:19:40 +0300 | feat: add AI provider and internet connectivity check

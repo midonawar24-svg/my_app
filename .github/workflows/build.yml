@@ -1,23 +1,70 @@
 name: Build
+
 on: [push, workflow_dispatch]
+
 jobs:
   build:
     runs-on: ubuntu-22.04
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.2'
-      - name: Fix old gradle
+
+      - name: Regenerate Android project
         run: |
           rm -rf android
           flutter create --platforms=android .
-      - run: flutter pub get
-      - run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Configure Android network access
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("android/app/src/main/AndroidManifest.xml")
+          s = p.read_text()
+
+          if "android.permission.INTERNET" not in s:
+              first_close = s.find(">")
+              if first_close == -1:
+                  raise SystemExit("AndroidManifest.xml: <manifest> tag not found")
+
+              s = (
+                  s[:first_close + 1]
+                  + '\n    <uses-permission android:name="android.permission.INTERNET"/>'
+                  + s[first_close + 1:]
+              )
+
+          p.write_text(s)
+          PY
+
+          echo "===== INTERNET PERMISSION CHECK ====="
+          grep -n "android.permission.INTERNET"             android/app/src/main/AndroidManifest.xml
+
+          echo "===== CLEARTEXT CHECK ====="
+          if grep -Rni "usesCleartextTraffic" android/app/src/main/AndroidManifest.xml; then
+            echo "ERROR: cleartext traffic configuration found"
+            exit 1
+          fi
+
+          echo "===== NETWORK CONFIG: PASS ====="
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Build APK
+        run: flutter build apk --release --no-tree-shake-icons
+
       - uses: actions/upload-artifact@v4
         with:
           name: apk
