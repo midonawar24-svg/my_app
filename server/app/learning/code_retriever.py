@@ -30,18 +30,21 @@ class CodeRetriever:
     It never modifies or executes project code.
     """
 
-    def __init__(self, project_root: Path):
+    def __init__(
+        self,
+        project_root: Path,
+        discovery_roots: tuple[tuple[Path, str], ...] | None = None,
+    ):
         self.project_root = project_root.resolve()
+        self.discovery_roots = discovery_roots or (
+            (
+                self.project_root / "app" / "memory" / "interests",
+                "memory.interests",
+            ),
+        )
 
     def _build_domains(self) -> dict[str, EvolutionDomain]:
         domains = dict(DOMAINS)
-
-        interests_root = (
-            self.project_root
-            / "app"
-            / "memory"
-            / "interests"
-        )
 
         def discover_recursive(
             root: Path,
@@ -72,10 +75,11 @@ class CodeRetriever:
                     domain_id,
                 )
 
-        discover_recursive(
-            interests_root,
-            "memory.interests",
-        )
+        for root, parent_domain_id in self.discovery_roots:
+            discover_recursive(
+                root,
+                parent_domain_id,
+            )
 
         return domains
 
