@@ -75,3 +75,39 @@ def test_personal_memory_is_protected():
         "memory.personal" not in path
         for path in result.files
     )
+
+
+def test_custom_discovery_root_retrieval():
+    from tempfile import TemporaryDirectory
+
+    with TemporaryDirectory() as tmp:
+        root = Path(tmp)
+
+        climate = (
+            root
+            / "interests"
+            / "weather"
+            / "climate"
+        )
+        climate.mkdir(parents=True)
+
+        (
+            root
+            / "interests"
+            / "weather"
+            / "__init__.py"
+        ).write_text("# weather\n")
+
+        (climate / "__init__.py").write_text("# climate\n")
+
+        retriever = CodeRetriever(
+            root,
+            discovery_roots=(
+                (root / "interests", "memory.interests"),
+            ),
+        )
+
+        domains = retriever._build_domains()
+
+        assert "memory.interests.weather" in domains
+        assert "memory.interests.weather.climate" in domains
