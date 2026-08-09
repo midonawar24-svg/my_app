@@ -26,6 +26,7 @@ class EvolutionContextBuilder:
         self,
         project_root: Path,
         evolution_history: Path,
+        discovery_roots: tuple[tuple[Path, str], ...] | None = None,
     ):
         self.project_root = project_root.resolve()
 
@@ -34,7 +35,10 @@ class EvolutionContextBuilder:
         store = EvolutionStore(evolution_history)
         self.evolution_memory = EvolutionMemory(store)
 
-        self.code_retriever = CodeRetriever(self.project_root)
+        self.code_retriever = CodeRetriever(
+            self.project_root,
+            discovery_roots=discovery_roots,
+        )
 
     def _build_domains(self) -> dict[str, Any]:
         domains = self.code_retriever._build_domains()
