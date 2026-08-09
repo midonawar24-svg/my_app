@@ -4,8 +4,17 @@ from app.learning.code_intent import CodeIntentResolver
 from app.learning.code_retriever import CodeRetriever
 
 
-def resolve_and_retrieve(message: str):
-    retriever = CodeRetriever(Path("."))
+def create_domain(root: Path, domain: str) -> None:
+    path = root / "app" / "memory" / "interests" / domain
+    path.mkdir(parents=True)
+    (path / "__init__.py").write_text(
+        f"# {domain}\n",
+        encoding="utf-8",
+    )
+
+
+def resolve_and_retrieve(root: Path, message: str):
+    retriever = CodeRetriever(root)
     intent = CodeIntentResolver(retriever).resolve(message)
 
     assert intent.is_code_request is True
@@ -14,28 +23,40 @@ def resolve_and_retrieve(message: str):
     return intent, retriever.retrieve(intent.domain_id)
 
 
-def test_arabic_sports_retrieval():
-    intent, result = resolve_and_retrieve("هات كود sports")
+def test_arabic_dynamic_domain_retrieval(tmp_path):
+    create_domain(tmp_path, "weather")
 
-    assert intent.domain_id == "memory.interests.sports"
-    assert "app/memory/interests/sports/__init__.py" in result.files
-
-
-def test_english_football_retrieval():
     intent, result = resolve_and_retrieve(
-        "show me the code for football"
+        tmp_path,
+        "هات كود weather",
     )
 
-    assert intent.domain_id == "memory.interests.sports.football"
+    assert intent.domain_id == "memory.interests.weather"
     assert (
-        "app/memory/interests/sports/football/__init__.py"
+        "app/memory/interests/weather/__init__.py"
+        in result.files
+    )
+
+
+def test_english_dynamic_domain_retrieval(tmp_path):
+    create_domain(tmp_path, "weather")
+
+    intent, result = resolve_and_retrieve(
+        tmp_path,
+        "show me the code for weather",
+    )
+
+    assert intent.domain_id == "memory.interests.weather"
+    assert (
+        "app/memory/interests/weather/__init__.py"
         in result.files
     )
 
 
 def test_arabic_memory_retrieval():
     intent, result = resolve_and_retrieve(
-        "هات ملفات memory interests"
+        Path("."),
+        "هات ملفات memory interests",
     )
 
     assert intent.domain_id == "memory"
@@ -44,7 +65,8 @@ def test_arabic_memory_retrieval():
 
 def test_personal_memory_is_protected():
     intent, result = resolve_and_retrieve(
-        "هات ملفات memory"
+        Path("."),
+        "هات ملفات memory",
     )
 
     assert "memory.personal" in result.protected_domains
