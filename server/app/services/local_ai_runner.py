@@ -63,4 +63,16 @@ class LocalAIRunner:
                 f"{process.returncode}: {error}"
             )
 
-        return stdout.decode(errors="replace").strip()
+        output = stdout.decode(errors="replace").strip()
+
+        if "Exiting..." in output:
+            output = output.split("Exiting...", 1)[0].rstrip()
+
+        if prompt in output:
+            output = output.split(prompt, 1)[-1].strip()
+
+        if output.startswith(">"):
+            output = output[1:].lstrip()
+
+        return output.strip()
+
