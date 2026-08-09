@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 from app.services.teacher_gateway import TeacherGateway
 from app.learning.memory_sink import LearningMemorySink
+from app.learning.learning_evolution_flow import LearningEvolutionFlow
 from app.learning.pipeline import LearningPipeline
 from app.memory.in_memory_gateway import InMemoryMemoryGateway
 
@@ -48,7 +49,11 @@ async def chat(request: ChatRequest):
                 LearningMemorySink(memory_gateway),
             )
 
-            await pipeline.learn(
+            flow = LearningEvolutionFlow(
+                learning_pipeline=pipeline,
+            )
+
+            await flow.process(
                 request.message,
                 conversation_id=conversation_id,
                 context=request.context,

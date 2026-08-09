@@ -1,6 +1,7 @@
 from .base import AIProvider
 from .echo_provider import EchoProvider
 from .fake_provider import FakeProvider
+from .local_provider import LocalAIProvider
 from .real_provider import RealAIProvider
 
 
@@ -8,6 +9,7 @@ PROVIDERS: dict[str, type[AIProvider]] = {
     "echo": EchoProvider,
     "fake": FakeProvider,
     "real": RealAIProvider,
+    "local": LocalAIProvider,
 }
 
 

@@ -1,0 +1,7 @@
+# Local AI runtime artifacts
+ai_runtime/models/*.gguf
+ai_runtime/evolution/*.json
+
+# Local/back-up files
+*.bak
+*.bak*

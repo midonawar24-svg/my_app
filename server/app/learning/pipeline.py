@@ -1,11 +1,28 @@
+from dataclasses import dataclass
 from typing import Any
 
 from app.learning.engine import LearningEngine
 from app.learning.memory_sink import LearningMemorySink
+from app.learning.models import LearningCandidate
+from app.memory.models import MemoryWriteResult
+
+
+@dataclass(frozen=True)
+class LearningPipelineResult:
+    accepted: bool
+    memory_id: str | None
+    reason: str
+    candidate: LearningCandidate
 
 
 class LearningPipeline:
-    """Coordinates teacher learning, validation, and memory persistence."""
+    """
+    Coordinates teacher learning, validation, memory persistence,
+    and exposes the accepted learning candidate to the evolution layer.
+
+    The teacher supplies knowledge.
+    The learning layer owns persistence and downstream evolution.
+    """
 
     def __init__(
         self,
@@ -29,7 +46,7 @@ class LearningPipeline:
         should_remember: bool = False,
         metadata: dict[str, Any] | None = None,
         reply: str | None = None,
-    ):
+    ) -> LearningPipelineResult:
         candidate = await self.learning_engine.learn_from_teacher(
             self.teacher_gateway,
             message,
@@ -43,4 +60,11 @@ class LearningPipeline:
             reply=reply,
         )
 
-        return await self.memory_sink.persist(candidate)
+        result = await self.memory_sink.persist(candidate)
+
+        return LearningPipelineResult(
+            accepted=result.accepted,
+            memory_id=result.memory_id,
+            reason=result.reason,
+            candidate=candidate,
+        )

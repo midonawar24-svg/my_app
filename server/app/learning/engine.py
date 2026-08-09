@@ -1,3 +1,4 @@
+import hashlib
 from typing import Any
 
 from app.learning.models import LearningCandidate
@@ -63,12 +64,31 @@ class LearningEngine:
                 "Learning confidence must be between 0 and 1"
             )
 
+        normalized_source = source.strip() or "teacher"
+        normalized_category = category.strip() or "unknown"
+
+        candidate_metadata = dict(metadata or {})
+        candidate_metadata.setdefault("learning_source", normalized_source)
+        candidate_metadata.setdefault("learning_category", normalized_category)
+        candidate_metadata.setdefault("normalized", True)
+
+        fingerprint_input = (
+            f"{normalized_source}\n"
+            f"{normalized_category}\n"
+            f"{text}"
+        )
+        fingerprint = hashlib.sha256(
+            fingerprint_input.encode("utf-8")
+        ).hexdigest()
+
+        candidate_metadata.setdefault("fingerprint", fingerprint)
+
         return LearningCandidate(
             content=text,
-            source=source.strip() or "teacher",
+            source=normalized_source,
             conversation_id=conversation_id,
             confidence=confidence,
-            category=category.strip() or "unknown",
+            category=normalized_category,
             should_remember=should_remember,
-            metadata=metadata,
+            metadata=candidate_metadata,
         )
