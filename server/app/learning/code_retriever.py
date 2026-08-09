@@ -64,6 +64,7 @@ class CodeRetriever:
                         parent_id=parent.parent_id,
                         protected=parent.protected,
                         children=parent.children + (domain_id,),
+                    aliases=parent.aliases,
                     )
 
                 discover_recursive(

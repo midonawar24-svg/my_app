@@ -17,7 +17,7 @@ class CodeIntentResolver:
     """
     Read-only resolver for natural-language code retrieval requests.
 
-    It maps Arabic/English user wording to known evolution domains.
+    It maps Arabic/English user wording to discovered evolution domains.
     It never edits or executes project code.
     """
 
@@ -65,8 +65,27 @@ class CodeIntentResolver:
     def _normalize(text: str) -> str:
         text = text.lower().strip()
         text = re.sub(r"[\u064B-\u065F\u0670]", "", text)
-        text = text.replace("أ", "ا").replace("إ", "ا").replace("آ", "ا")
+        text = (
+            text.replace("أ", "ا")
+            .replace("إ", "ا")
+            .replace("آ", "ا")
+        )
         return text
+
+    def _domain_terms(self, domain_id: str, domain: Any) -> tuple[str, ...]:
+        terms = [
+            domain.name,
+            *getattr(domain, "aliases", ()),
+            domain_id.rsplit(".", 1)[-1],
+        ]
+
+        return tuple(
+            dict.fromkeys(
+                self._normalize(term)
+                for term in terms
+                if term and self._normalize(term)
+            )
+        )
 
     def resolve(self, message: str) -> CodeIntent:
         text = self._normalize(message)
@@ -91,46 +110,57 @@ class CodeIntentResolver:
 
         domains = self._all_domains()
 
-        # Prefer exact domain IDs first.
-        for domain_id in sorted(
-            domains,
-            key=len,
-            reverse=True,
-        ):
-            if self._normalize(domain_id) in text:
-                return CodeIntent(
-                    is_code_request=True,
-                    domain_id=domain_id,
-                    confidence=1.0,
-                    reason="Exact domain ID matched",
+        # Exact domain IDs remain the strongest signal.
+        exact_matches = [
+            domain_id
+            for domain_id in domains
+            if self._normalize(domain_id) in text
+        ]
+
+        if exact_matches:
+            domain_id = max(
+                exact_matches,
+                key=lambda value: (
+                    len(value),
+                    len(value.split(".")),
+                ),
+            )
+
+            return CodeIntent(
+                is_code_request=True,
+                domain_id=domain_id,
+                confidence=1.0,
+                reason="Exact domain ID matched",
+            )
+
+        # Score discovered domain names, aliases, and filesystem branches.
+        candidates: list[tuple[int, int, int, str]] = []
+
+        for domain_id, domain in domains.items():
+            depth = len(domain_id.split("."))
+
+            for term in self._domain_terms(domain_id, domain):
+                if term not in text:
+                    continue
+
+                candidates.append(
+                    (
+                        len(term),
+                        depth,
+                        1 if term == self._normalize(domain.name) else 0,
+                        domain_id,
+                    )
                 )
 
-        # Then match domain names and filesystem branch names.
-        for domain_id, domain in sorted(
-            domains.items(),
-            key=lambda item: len(item[0]),
-            reverse=True,
-        ):
-            name = self._normalize(domain.name)
+        if candidates:
+            _, _, _, domain_id = max(candidates)
 
-            if name and name in text:
-                return CodeIntent(
-                    is_code_request=True,
-                    domain_id=domain_id,
-                    confidence=0.9,
-                    reason="Domain name matched",
-                )
-
-            branch = domain_id.rsplit(".", 1)[-1]
-            branch = self._normalize(branch)
-
-            if branch and branch in text:
-                return CodeIntent(
-                    is_code_request=True,
-                    domain_id=domain_id,
-                    confidence=0.85,
-                    reason="Domain branch matched",
-                )
+            return CodeIntent(
+                is_code_request=True,
+                domain_id=domain_id,
+                confidence=0.9,
+                reason="Natural-language domain alias matched",
+            )
 
         return CodeIntent(
             is_code_request=True,

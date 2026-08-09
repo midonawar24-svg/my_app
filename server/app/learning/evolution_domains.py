@@ -9,6 +9,7 @@ class EvolutionDomain:
     parent_id: str | None = None
     protected: bool = False
     children: tuple[str, ...] = field(default_factory=tuple)
+    aliases: tuple[str, ...] = field(default_factory=tuple)
 
 
 ROOT_DOMAIN = EvolutionDomain(
@@ -43,18 +44,21 @@ DOMAINS = {
         domain_id="ai.local",
         name="Local AI",
         parent_id="ai",
+        aliases=("local ai", "local", "ذكاء اصطناعي محلي", "الذكاء الاصطناعي المحلي"),
     ),
 
     "ai.providers": EvolutionDomain(
         domain_id="ai.providers",
         name="AI Providers",
         parent_id="ai",
+        aliases=("providers", "provider", "مزودات", "مزود الذكاء الاصطناعي"),
     ),
 
     "ai.runtime": EvolutionDomain(
         domain_id="ai.runtime",
         name="Model Runtime",
         parent_id="ai",
+        aliases=("runtime", "model runtime", "تشغيل النماذج", "محرك النماذج"),
     ),
 
     "memory": EvolutionDomain(
@@ -85,6 +89,7 @@ DOMAINS = {
         domain_id="memory.interests",
         name="Interests",
         parent_id="memory",
+        aliases=("interests", "اهتمامات", "اهتمام", "sports", "رياضة", "الرياضة"),
     ),
 
     "memory.personal": EvolutionDomain(
@@ -166,11 +171,23 @@ def discover_subdomains(
 
         domain_id = f"{parent_domain_id}.{child.name}"
 
+        name = child.name.replace("_", " ").strip()
+        aliases = tuple(
+            dict.fromkeys(
+                (
+                    child.name,
+                    name,
+                    name.replace("_", " "),
+                )
+            )
+        )
+
         discovered[domain_id] = EvolutionDomain(
             domain_id=domain_id,
-            name=child.name.replace("_", " ").title(),
+            name=name.title(),
             parent_id=parent_domain_id,
-            protected=False,
+            protected=parent.protected,
+            aliases=aliases,
         )
 
     return discovered
