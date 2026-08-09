@@ -5,7 +5,6 @@ from app.learning.code_retriever import CodeRetriever
 from app.learning.evolution_memory import EvolutionMemory
 from app.learning.evolution_store import EvolutionStore
 from app.learning.project_analyzer import ProjectAnalyzer
-from app.learning.evolution_domains import DOMAINS, discover_subdomains
 
 
 class EvolutionContextBuilder:
@@ -38,61 +37,7 @@ class EvolutionContextBuilder:
         self.code_retriever = CodeRetriever(self.project_root)
 
     def _build_domains(self) -> dict[str, Any]:
-        domains = dict(DOMAINS)
-
-        interests_root = (
-            self.project_root
-            / "app"
-            / "memory"
-            / "interests"
-        )
-
-        discovered = discover_subdomains(
-            interests_root,
-            "memory.interests",
-        )
-
-        domains.update(discovered)
-
-        # Recursively discover nested filesystem domains.
-        pending = list(discovered.values())
-
-        while pending:
-            parent = pending.pop(0)
-
-            if parent.protected:
-                continue
-
-            parent_path = self.project_root / Path(
-                parent.domain_id.replace(".", "/")
-            )
-
-            children = discover_subdomains(
-                parent_path,
-                parent.domain_id,
-            )
-
-            for child_id, child in children.items():
-                if child_id not in domains:
-                    domains[child_id] = child
-                    pending.append(child)
-
-        # Rebuild child relationships from discovered domains.
-        for domain_id, domain in list(domains.items()):
-            if not domain.children:
-                children = tuple(
-                    child_id
-                    for child_id, child in domains.items()
-                    if child.parent_id == domain_id
-                )
-
-                if children:
-                    from dataclasses import replace
-
-                    domains[domain_id] = replace(
-                        domain,
-                        children=tuple(sorted(children)),
-                    )
+        domains = self.code_retriever._build_domains()
 
         result: dict[str, Any] = {}
 
@@ -101,9 +46,7 @@ class EvolutionContextBuilder:
 
             if not domain.protected:
                 try:
-                    files = self.code_retriever.retrieve(
-                        domain_id
-                    ).files
+                    files = self.code_retriever.retrieve(domain_id).files
                 except ValueError:
                     files = ()
 
