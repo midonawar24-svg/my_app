@@ -5,3 +5,6 @@ ai_runtime/evolution/*.json
 # Local/back-up files
 *.bak
 *.bak*
+.evolution_store.json
+.test_*_evolution_store.json
+project_files.txt

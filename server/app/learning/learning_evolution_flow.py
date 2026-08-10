@@ -1,10 +1,12 @@
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from app.learning.evolution_orchestrator import (
     EvolutionFlowResult,
     EvolutionOrchestrator,
 )
+from app.learning.evolution_context import EvolutionContextBuilder
 from app.learning.models import LearningCandidate
 from app.learning.pipeline import LearningPipeline
 from app.learning.evolution_decision import EvolutionDecision, EvolutionDecisionLayer
@@ -39,10 +41,22 @@ class LearningEvolutionFlow:
         self,
         learning_pipeline: LearningPipeline,
         evolution_orchestrator: EvolutionOrchestrator | None = None,
+        ai_provider=None,
+        evolution_store=None,
+        event_bus=None,
     ):
         self.learning_pipeline = learning_pipeline
         self.evolution_orchestrator = (
-            evolution_orchestrator or EvolutionOrchestrator()
+            evolution_orchestrator
+            or EvolutionOrchestrator(
+                ai_provider=ai_provider,
+                evolution_store=evolution_store,
+                event_bus=event_bus,
+            )
+        )
+        self.evolution_context = EvolutionContextBuilder(
+            project_root=Path("."),
+            evolution_history=Path(".evolution_store.json"),
         )
         self.decision_layer = EvolutionDecisionLayer()
         self.review_gate = HumanReviewGate()
@@ -182,10 +196,15 @@ class LearningEvolutionFlow:
         expected_gain: float = 0.0,
         risk: float = 0.0,
     ) -> LearningEvolutionResult:
+        discovery_context = self.evolution_context.build()
+
+        merged_context = dict(context or {})
+        merged_context.update(discovery_context)
+
         learning_result = await self.learning_pipeline.learn(
             message,
             conversation_id=conversation_id,
-            context=context,
+            context=merged_context,
             source=source,
             confidence=confidence,
             category=category,

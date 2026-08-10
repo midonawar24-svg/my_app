@@ -1,6 +1,7 @@
 import asyncio
 
 from app.learning.learning_evolution_flow import LearningEvolutionFlow
+from app.learning.evolution_store import EvolutionStore
 from app.learning.pipeline import LearningPipeline
 from app.learning.memory_sink import LearningMemorySink
 from app.learning.evolution_report import EvolutionReportBuilder
@@ -21,6 +22,9 @@ def test_final_dry_run_end_to_end():
     async def run():
         memory = FakeMemoryGateway()
         teacher = FakeTeacherGateway()
+        store = EvolutionStore(
+            __import__("pathlib").Path(".test_final_dry_run_evolution_store.json")
+        )
 
         pipeline = LearningPipeline(
             teacher,
@@ -29,6 +33,7 @@ def test_final_dry_run_end_to_end():
 
         flow = LearningEvolutionFlow(
             learning_pipeline=pipeline,
+            evolution_store=store,
         )
 
         result = await flow.process(

@@ -25,6 +25,7 @@ class EvolutionBridge:
         target: str = "local_ai",
         expected_gain: float = 0.0,
         risk: float = 0.0,
+        discovery_context: dict[str, Any] | None = None,
     ) -> EvolutionProposal:
         content = candidate.content.strip()
 
@@ -40,17 +41,25 @@ class EvolutionBridge:
             raise ValueError("risk must be between 0 and 1")
 
         digest = sha256(content.encode("utf-8")).hexdigest()[:16]
+        fingerprint = sha256(
+            f"{target}|{candidate.category}|{content}".encode("utf-8")
+        ).hexdigest()
+
         proposal_id = f"learn-{digest}"
 
         metadata: dict[str, Any] = {
             "conversation_id": candidate.conversation_id,
             "learning_source": candidate.source,
+            "fingerprint": fingerprint,
         }
 
         if self.evolution_memory is not None:
             metadata["evolution_memory"] = (
                 self.evolution_memory.build_context(limit=10)
             )
+
+        if discovery_context is not None:
+            metadata["discovery_context"] = discovery_context
 
         title = f"Improve {target} from learned observation"
 

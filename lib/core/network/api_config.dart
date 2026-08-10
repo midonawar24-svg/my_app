@@ -1,5 +1,6 @@
 class ApiConfig {
-  static const String _defaultBaseUrl = 'http://127.0.0.1:8000';
+  static const String _defaultHost = '127.0.0.1';
+  static const int _defaultPort = 8001;
 
   static const String _runtimeBaseUrl =
       String.fromEnvironment('API_BASE_URL');
@@ -11,7 +12,11 @@ class ApiConfig {
       return value.replaceFirst(RegExp(r'/$'), '');
     }
 
-    return _defaultBaseUrl;
+    return Uri(
+      scheme: 'http',
+      host: _defaultHost,
+      port: _defaultPort,
+    ).toString();
   }
 
   Duration get connectTimeout => const Duration(seconds: 15);

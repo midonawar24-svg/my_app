@@ -17,6 +17,17 @@ class EvolutionProposal:
 
 
 @dataclass(frozen=True)
+class EvolutionCycle:
+    cycle_id: str
+    target: str
+    started_at: str
+    finished_at: str | None = None
+    duration_seconds: float | None = None
+    result: str = "started"
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
 class EvolutionEvaluation:
     proposal_id: str
     accepted: bool

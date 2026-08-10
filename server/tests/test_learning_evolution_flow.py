@@ -1,6 +1,8 @@
 import asyncio
+from app.learning.evolution_store import EvolutionStore
 
 from app.learning.learning_evolution_flow import LearningEvolutionFlow
+from app.learning.evolution_store import EvolutionStore
 from app.learning.memory_sink import LearningMemorySink
 from app.learning.pipeline import LearningPipeline
 from app.memory.fake_gateway import FakeMemoryGateway
@@ -16,7 +18,7 @@ class FakeTeacherGateway:
         return f"Teacher learned: {message}"
 
 
-def test_learning_to_evolution_flow():
+def test_learning_to_evolution_flow(tmp_path):
     async def run():
         memory = FakeMemoryGateway()
 
@@ -25,7 +27,15 @@ def test_learning_to_evolution_flow():
             LearningMemorySink(memory),
         )
 
-        flow = LearningEvolutionFlow(pipeline)
+        store = EvolutionStore(
+            tmp_path / "evolution.json"
+        )
+
+        flow = LearningEvolutionFlow(
+            pipeline,
+            evolution_orchestrator=None,
+            evolution_store=store,
+        )
 
         result = await flow.process(
             "Teach the local AI a successful pattern",

@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any
 
 from app.learning.evolution_models import (
+    EvolutionCycle,
     EvolutionEvaluation,
     EvolutionProposal,
 )
@@ -36,6 +37,40 @@ class EvolutionStore:
             json.dumps(records, ensure_ascii=False, indent=2)
         )
         temporary.replace(self.path)
+
+    def record_cycle(self, cycle: EvolutionCycle) -> None:
+        records = self._read()
+
+        records.append(
+            {
+                "cycle": {
+                    "cycle_id": cycle.cycle_id,
+                    "target": cycle.target,
+                    "started_at": cycle.started_at,
+                    "finished_at": cycle.finished_at,
+                    "duration_seconds": cycle.duration_seconds,
+                    "result": cycle.result,
+                    "metadata": dict(cycle.metadata),
+                }
+            }
+        )
+
+        self._write(records)
+
+    def has_seen_evolution(self, fingerprint: str) -> bool:
+        fingerprint = fingerprint.strip()
+
+        if not fingerprint:
+            return False
+
+        for record in self._read():
+            proposal = record.get("proposal", {})
+            metadata = proposal.get("metadata", {})
+
+            if metadata.get("fingerprint") == fingerprint:
+                return True
+
+        return False
 
     def record(
         self,

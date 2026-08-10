@@ -12,6 +12,7 @@ class EvolutionMemorySummary:
     best_score: float
     successful_patterns: list[str]
     failed_patterns: list[str]
+    duplicate_count: int
 
 
 class EvolutionMemory:
@@ -48,6 +49,13 @@ class EvolutionMemory:
         records = self.history()
         accepted = self.accepted()
         rejected = self.rejected()
+
+        duplicate_count = sum(
+            1
+            for record in records
+            if record.get("evaluation", {}).get("reason")
+            == "evolution_already_seen"
+        )
 
         scores = [
             float(record.get("evaluation", {}).get("score", 0.0))
@@ -90,6 +98,7 @@ class EvolutionMemory:
             best_score=max(scores, default=0.0),
             successful_patterns=successful_patterns,
             failed_patterns=failed_patterns,
+            duplicate_count=duplicate_count,
         )
 
     def build_context(self, limit: int = 10) -> dict[str, Any]:
@@ -101,6 +110,7 @@ class EvolutionMemory:
                 "accepted": summary.accepted,
                 "rejected": summary.rejected,
                 "best_score": summary.best_score,
+                "duplicate_count": summary.duplicate_count,
                 "successful_patterns": summary.successful_patterns[-limit:],
                 "failed_patterns": summary.failed_patterns[-limit:],
             }

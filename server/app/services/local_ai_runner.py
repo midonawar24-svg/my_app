@@ -47,13 +47,13 @@ class LocalAIRunner:
         try:
             stdout, stderr = await asyncio.wait_for(
                 process.communicate(),
-                timeout=120,
+                timeout=300,
             )
         except asyncio.TimeoutError:
             process.kill()
             await process.wait()
             raise RuntimeError(
-                "llama.cpp generation timed out after 120 seconds"
+                "llama.cpp generation timed out after 300 seconds"
             )
 
         if process.returncode != 0:

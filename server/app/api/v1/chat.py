@@ -84,6 +84,8 @@ async def chat(request: ChatRequest):
                 category=request.memory_type,
                 should_remember=True,
                 reply=reply,
+                expected_gain=0.80,
+                risk=0.20,
             )
         except Exception:
             # Learning persistence must never break the primary chat response.
